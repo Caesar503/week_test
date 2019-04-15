@@ -32,8 +32,10 @@ class WXController extends Controller
               'sex'=>$u['sex'],
               'headimgurl'=>$u['headimgurl']
            ];
+           $oid = $res->FromUserName;
+           $gzhid = $res->ToUserName;
            App\Model\Wx::insert($date);
-           echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[欢迎关注{$info['nickname']}]]></Content></xml>";
+           echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[欢迎关注{$u['nickname']}]]></Content></xml>";
    			}
    		}else if($res->MsgType=='text'){
    			echo 'text';
