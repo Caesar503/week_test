@@ -7,6 +7,6 @@ use Illuminate\Http\Request;
 class WXController extends Controller
 {
    	public function get_vaild(){
-   		print_r($_GET);
+   		echo $_GET['echostr'];
    	}
 }
