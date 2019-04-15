@@ -18,3 +18,5 @@ Route::get('/', function () {
 Route::get('Weixin/vaild','WXController@get_vaild');
 // 第二次以及以后
 Route::post('Weixin/vaild','WXController@post_vaild');
+
+Route::get('Weixin/access_token','WXController@get_access_token');
