@@ -14,8 +14,9 @@ class WXController extends Controller
    		$content = file_get_contents("php://input");
    		$res = simplexml_load_string($content);
    		// dd($res);/
+   		$time = date('Y-m-d H:i:s',time());
    		$str = $time.$content."\n";
    		file_put_contents("logs/wx_event.log",$str,FILE_APPEND);
-   		
+
    	}
 }
