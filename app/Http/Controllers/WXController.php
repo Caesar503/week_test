@@ -46,23 +46,30 @@ class WXController extends Controller
        			}
    		}else if($res->MsgType=='text'){
             if(strpos($res->Content,'+天气')){
-              $rrr = explode('+',$res->Content)[0];
-              // echo($rrr);die;
-              $tq_u = "https://free-api.heweather.net/s6/weather/now?key=HE1904161048191969&location=".$rrr;
-              $tq_data = json_decode(file_get_contents($tq_u),true);
-              // print_r($tq_data);die;
-              if($tq_data['HeWeather6'][0]['status']=='ok'){
-                 $cond_txt = $tq_data['HeWeather6'][0]['now']['cond_txt']; //天气情况
-                $tmp = $tq_data['HeWeather6'][0]['now']['tmp']; //摄氏度
-                $hum = $tq_data['HeWeather6'][0]['now']['hum']; //湿度
-                $wind_dir = $tq_data['HeWeather6'][0]['now']['wind_dir']; //风向
-                $wind_sc = $tq_data['HeWeather6'][0]['now']['wind_sc']; //风力
-                $res_tq_data = '天气情况:'.$cond_txt."\n".'摄氏度:'.$tmp."\n".'湿度:'.$hum."\n".'风向:'.$wind_dir."\n".'风力:'.$wind_sc;
-                // echo $res_tq_data;die;
-                echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[".$res_tq_data."]]></Content></xml>";
-              }else{
-                echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[城市名称不正确！！]]></Content></xml>";
-              }
+                  $rrr = explode('+',$res->Content)[0];
+                  // echo($rrr);die;
+                  $tq_u = "https://free-api.heweather.net/s6/weather/now?key=HE1904161048191969&location=".$rrr;
+                  $tq_data = json_decode(file_get_contents($tq_u),true);
+                  // print_r($tq_data);die;
+                  if($tq_data['HeWeather6'][0]['status']=='ok'){
+                     $cond_txt = $tq_data['HeWeather6'][0]['now']['cond_txt']; //天气情况
+                    $tmp = $tq_data['HeWeather6'][0]['now']['tmp']; //摄氏度
+                    $hum = $tq_data['HeWeather6'][0]['now']['hum']; //湿度
+                    $wind_dir = $tq_data['HeWeather6'][0]['now']['wind_dir']; //风向
+                    $wind_sc = $tq_data['HeWeather6'][0]['now']['wind_sc']; //风力
+                    $res_tq_data = '天气情况:'.$cond_txt."\n".'摄氏度:'.$tmp."\n".'湿度:'.$hum."\n".'风向:'.$wind_dir."\n".'风力:'.$wind_sc;
+                    // echo $res_tq_data;die;
+                    // echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[".$res_tq_data."]]></Content></xml>";
+                    echo "<xml>
+                            <ToUserName><![CDATA[$oid]]></ToUserName>
+                            <FromUserName><![CDATA[$gzhid]]></FromUserName>
+                            <CreateTime>".time()."</CreateTime>
+                            <MsgType><![CDATA[text]]></MsgType>
+                            <Content><![CDATA[".$res_tq_data."]]></Content>
+                          </xml>";
+                  }else{
+                    echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[城市名称不正确！！]]></Content></xml>";
+                  }
              
             }else{
               $text_data = [
@@ -73,7 +80,7 @@ class WXController extends Controller
                 'create_t'=>$res->CreateTime
               ];
               App\Model\WxText::insert($text_data);
-              echo "<xml><ToUserName><![CDATA[$gzhid]]></ToUserName><FromUserName><![CDATA[$oid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[我们已收到您的消息,亲,稍等]]></Content></xml>";
+              echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[我们已收到您的消息,亲,稍等]]></Content></xml>";
             }
        			
       }else if($res->MsgType=='voice'){
@@ -112,9 +119,9 @@ class WXController extends Controller
             App\Model\WxVoice::insert($image_data);
             $rs = Storage::put($img_name,$response->getbody());
             if($rs){
-              echo '保存成功';
+              echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[保存ok！]]></Content></xml>";
             }else{
-              echo '保存失败';
+              echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[保存失败！]]></Content></xml>";
             }
       }
    	}
