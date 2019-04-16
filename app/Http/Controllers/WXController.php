@@ -41,19 +41,40 @@ class WXController extends Controller
                   'sex'=>$u['sex'],
                   'headimgurl'=>$u['headimgurl']
                ];
-               App\Model\WxText::insert($date);
-               echo "<xml><ToUserName><![CDATA[$gzhid]]></ToUserName><FromUserName><![CDATA[$oid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[欢迎关注{$u['nickname']}]]></Content></xml>";
+               App\Model\Wx::insert($date);
+               echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[欢迎关注{$u['nickname']}]]></Content></xml>";
        			}
    		}else if($res->MsgType=='text'){
-       			$text_data = [
-              'openid'=>$res->FromUserName,
-              'gzhid'=>$res->ToUserName,
-              'msgid'=>$res->MsgId,
-              'text'=>$res->Content,
-              'create_t'=>$res->CreateTime
-            ];
-            App\Model\WxText::insert($text_data);
-            echo "<xml><ToUserName><![CDATA[$gzhid]]></ToUserName><FromUserName><![CDATA[$oid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[我们已收到您的消息,亲,稍等]]></Content></xml>";
+            if(strpos($res->Content,'+天气')){
+              $rrr = explode('+',$res->Content)[0];
+              // echo($rrr);die;
+              $tq_u = "https://free-api.heweather.net/s6/weather/now?key=HE1904161048191969&location=".$rrr;
+              $tq_data = json_decode(file_get_contents($tq_u),true);
+              // print_r($tq_data);die;
+              if($tq_data['HeWeather6'][0]['status']=='ok'){
+                 $cond_txt = $tq_data['HeWeather6'][0]['now']['cond_txt']; //天气情况
+                $tmp = $tq_data['HeWeather6'][0]['now']['tmp']; //摄氏度
+                $hum = $tq_data['HeWeather6'][0]['now']['hum']; //湿度
+                $wind_dir = $tq_data['HeWeather6'][0]['now']['wind_dir']; //风向
+                $wind_sc = $tq_data['HeWeather6'][0]['now']['wind_sc']; //风力
+                $res_tq_data = '天气情况:'.$cond_txt."\n".'摄氏度:'.$tmp."\n".'湿度:'.$hum."\n".'风向:'.$wind_dir."\n".'风力:'.$wind_sc;
+                echo "<xml><ToUserName><![CDATA[$gzhid]]></ToUserName><FromUserName><![CDATA[$oid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[".$res_tq_data."]]></Content></xml>";
+              }else{
+                echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[城市名称不正确！！]]></Content></xml>";
+              }
+             
+            }else{
+              $text_data = [
+                'openid'=>$res->FromUserName,
+                'gzhid'=>$res->ToUserName,
+                'msgid'=>$res->MsgId,
+                'text'=>$res->Content,
+                'create_t'=>$res->CreateTime
+              ];
+              App\Model\WxText::insert($text_data);
+              echo "<xml><ToUserName><![CDATA[$gzhid]]></ToUserName><FromUserName><![CDATA[$oid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[我们已收到您的消息,亲,稍等]]></Content></xml>";
+            }
+       			
       }else if($res->MsgType=='voice'){
             $url ="https://api.weixin.qq.com/cgi-bin/media/get?access_token=".$this->get_access_token()."&media_id=".$res->MediaId;
             $url1 = file_get_contents($url);
@@ -71,7 +92,6 @@ class WXController extends Controller
       }else if($res->MsgType=='image'){
             $img = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=".$this->get_access_token()."&media_id=".$res->MediaId;
             $img1 = file_get_contents($img);
-
             $client = new Client();
             $response = $client->get(new Uri($img));
             //响应头
