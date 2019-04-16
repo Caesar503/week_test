@@ -20,3 +20,5 @@ Route::get('Weixin/vaild','WXController@get_vaild');
 Route::post('Weixin/vaild','WXController@post_vaild');
 
 Route::get('Weixin/access_token','WXController@get_access_token');
+
+Route::get('Weixin/create_menu','WXController@create_menu');
