@@ -58,7 +58,8 @@ class WXController extends Controller
                 $wind_dir = $tq_data['HeWeather6'][0]['now']['wind_dir']; //风向
                 $wind_sc = $tq_data['HeWeather6'][0]['now']['wind_sc']; //风力
                 $res_tq_data = '天气情况:'.$cond_txt."\n".'摄氏度:'.$tmp."\n".'湿度:'.$hum."\n".'风向:'.$wind_dir."\n".'风力:'.$wind_sc;
-                echo "<xml><ToUserName><![CDATA[$gzhid]]></ToUserName><FromUserName><![CDATA[$oid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[".$res_tq_data."]]></Content></xml>";
+                // echo $res_tq_data;die;
+                echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[".$res_tq_data."]]></Content></xml>";
               }else{
                 echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[城市名称不正确！！]]></Content></xml>";
               }
