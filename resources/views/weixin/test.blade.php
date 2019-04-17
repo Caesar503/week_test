@@ -98,7 +98,7 @@
 <script src="/js/jquery-1.12.4.min.js"></script>
 <script src="/js/qrcode.js"></script>
 <script type="text/javascript">
-    new QRCode(document.getElementById("qrcode"), {{$url}});  // 设置要生成二维码的链接
+    new QRCode(document.getElementById("qrcode"),"{{$url}}");
 </script>
 </body>
 </html>
