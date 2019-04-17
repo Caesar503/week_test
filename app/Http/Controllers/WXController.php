@@ -30,20 +30,30 @@ class WXController extends Controller
       $gzhid = $res->ToUserName;
    		//判断
    		if($res->MsgType=='event'){
-       			if($res->Event=='subscribe'){
-       				// echo '关注事件';
-       				 $l = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=".$this->get_access_token()."&openid=".$res->FromUserName."&lang=zh_CN";
-               $data = file_get_contents($l);
-               $u = json_decode($data,true);
-               $date = [
-                  'openid'=>$res->FromUserName,
-                  'nickname'=>$u['nickname'],
-                  'sex'=>$u['sex'],
-                  'headimgurl'=>$u['headimgurl']
-               ];
-               App\Model\Wx::insert($date);
-               echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[欢迎关注{$u['nickname']}]]></Content></xml>";
-       			}
+       			if($res->Event=='subscribe'){// echo '关注事件';
+       				 $local_info = App\Model\Wx::where('openid',$oid)->first();
+               if($local_info){
+                  $dd1 = ['sub_status'=>1];
+                  App\Model\Wx::where('openid',$oid)->update($dd);
+                  echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[欢迎回来  {$local_user->nickname}]]></Content></xml>";
+               }else{
+                  $l = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=".$this->get_access_token()."&openid=".$res->FromUserName."&lang=zh_CN";
+                 $data = file_get_contents($l);
+                 $u = json_decode($data,true);
+                 $date = [
+                    'openid'=>$res->FromUserName,
+                    'nickname'=>$u['nickname'],
+                    'sex'=>$u['sex'],
+                    'headimgurl'=>$u['headimgurl']
+                 ];
+                 App\Model\Wx::insert($date);
+                 echo "<xml><ToUserName><![CDATA[$oid]]></ToUserName><FromUserName><![CDATA[$gzhid]]></FromUserName><CreateTime>".time()."</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[欢迎关注{$u['nickname']}]]></Content></xml>";
+               }
+       			}else{
+              $dd = ['sub_status'=>0];
+              $ddd = App\Model\Wx::where('openid',$oid)->update($dd);
+              // dd($ddd);
+            }
    		}else if($res->MsgType=='text'){
             if(strpos($res->Content,'+天气')){
                   $rrr = explode('+',$res->Content)[0];
@@ -93,7 +103,6 @@ class WXController extends Controller
                             <Content><![CDATA[我们已收到您的消息,亲,稍等]]></Content>
                           </xml>";
             }
-       			
       }else if($res->MsgType=='voice'){
             $url ="https://api.weixin.qq.com/cgi-bin/media/get?access_token=".$this->get_access_token()."&media_id=".$res->MediaId;
             $url1 = file_get_contents($url);
@@ -190,5 +199,29 @@ class WXController extends Controller
         }else{
             echo "创建菜单失败";
         }
+    }
+    public function send(){
+      $o = App\Model\Wx::where('sub_status',1)->get()->toArray();
+      $openid_array = array_column($o,'openid');
+      // print_r($openid_array);die;
+      $data = [
+        'touser'=>$openid_array,
+        'msgtype'=>'text',
+        'text'=>[
+          'content'=>'hellow everyone !! 咳咳'
+        ]
+      ];
+      $data_json = json_encode($data,JSON_UNESCAPED_UNICODE);
+      $aa = $this->more_send($data_json);
+      dd($aa);
+    }
+   //群发消息
+    public function more_send($openid_array){
+      $url = "https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token=".$this->get_access_token();
+      $client = new Client();
+      $response = $client->request('POST',$url,[
+          'body'=>$openid_array
+      ]);
+      return $response;
     }
 }
