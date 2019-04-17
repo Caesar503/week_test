@@ -27,4 +27,4 @@ Route::get('Weixin/more_send','WXController@send');
 //微信支付测试
 Route::get('Weixin/test','WxPayController@test');
 //回调
-Route::get('Weixin/pay_notify','WxPayController@pay_notify');
+Route::post('Weixin/pay_notify','WxPayController@pay_notify');
